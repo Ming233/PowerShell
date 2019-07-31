@@ -1,0 +1,160 @@
+{"steps": [
+        {"step": "Setup the Environment",
+        "command": "set_environment",
+        "environment": "DEV"
+        },
+        {"step": "Setup DEV Variables",
+        "command": "setup_variables",
+        "environment": "DEV",   
+        "variables": [
+                {"name": "prism_db", "value": "PRISM_DEV_B", "pass_to_functions": "TRUE"},
+                {"name": "staging_db", "value": "PRISM_STAGING_B", "pass_to_functions": "TRUE"},
+                {"name": "BAK_staging_archive_db", "value": "PRISM_STAGING_ARCHIVE", "pass_to_functions": "TRUE"},
+                {"name": "PROD_Backup_Folder", "value": "\\\\10.190.18.195\\SQLBackups\\P-JSS-DCL002$P-JSG-PSM-AON\\PRISM_PROD\\FULL", "pass_to_functions": "TRUE"},
+                {"name": "STAGING_Backup_Folder", "value": "\\\\10.190.18.195\\SQLBackups\\P-JSS-DCL002$P-JSG-PSM-AON\\PRISM_STAGING\\FULL", "pass_to_functions": "TRUE"},
+                {"name": "BAK_STAGING_Archive_Backup_Folder", "value": "\\\\10.190.18.195\\SQLBackups\\P-JSS-DCL002$P-JSG-PSM-AON\\PRISM_STAGING_ARCHIVE\\FULL", "pass_to_functions": "TRUE"},
+                {"name": "email_recipients", "value": "suresh.thoduvail@gov.ab.ca;valentine.ayobahan@gov.ab.ca"},
+                {"name": "servername", "value": "D-PSM-DBS002\\DEVM12A,1404"},
+                {"name": "email_after_every_step_completes", "value": "N"}
+            ]
+        },
+        {"step": "Pause before running the scripts.",
+        "command": "pause_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "pause_text", "value": "Please confirm that the databases the script is set up for are correct.", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[PRISM_DB]]",
+        "command": "execute_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[prism_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[STAGING_DB]]",
+        "command": "execute_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Verify nobody is connected to $[PRISM_DB]",
+        "command": "execute_verification_sql",
+        "environment": "ALL",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_script_to_use", "value": "Verify_No_Users_Connected_To_DB.sql"},
+                {"name": "comparison_return_value", "value": "0"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "INT"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify nobody is connected to $[STAGING_DB]",
+        "command": "execute_verification_sql",
+        "environment": "ALL",
+        "variables": [
+                {"name": "db_to_use", "value": "$[staging_db]"},
+                {"name": "sql_script_to_use", "value": "Verify_No_Users_Connected_To_DB.sql"},
+                {"name": "comparison_return_value", "value": "0"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "INT"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+       {"step": "RESTORE DEV databases from Feb 07 2018 PRISM PROD backup - DEV ONLY",
+        "command": "Restore_Database",
+        "environment": "DEV",
+        "variables": [
+                {"name": "db_to_restore", "value": "PRISM_DEV_B"},
+				{"name": "file_to_restore_from", "value": "\\\\10.190.18.195\\SQLBackups\\P-JSS-DCL002$P-JSG-PSM-AON\\PRISM_PROD\\FULL\\P-JSS-DCL002$P-JSG-PSM-AON_PRISM_PROD_FULL_20180702_173016_*.bak"},
+				{"name": "move_data_from_name", "value": ""},
+				{"name": "move_data_to_name", "value": ""},
+				{"name": "move_log_From_name", "value": ""},
+				{"name": "move_log_to_name", "value": ""}
+            ]
+        },
+		{"step": "RESTORE STAGING database from Feb 07 2018PRISM PROD backup- DEV ONLY",
+        "command": "Restore_Database",
+        "environment": "DEV",
+        "variables": [
+                {"name": "db_to_restore", "value": "PRISM_Staging_B"},
+				{"name": "file_to_restore_from", "value": "\\\\10.190.18.195\\SQLBackups\\P-JSS-DCL002$P-JSG-PSM-AON\\PRISM_STAGING\\FULL\\P-JSS-DCL002$P-JSG-PSM-AON_PRISM_STAGING_FULL_20180702_173625_*.bak"},
+				{"name": "move_data_from_name", "value": ""},
+				{"name": "move_data_to_name", "value": ""},
+				{"name": "move_log_From_name", "value": ""},
+				{"name": "move_log_to_name", "value": ""}
+            ]
+        },
+        {"step": "Set Recovery Mode to simple and shrink the log file for $[prism_db]",
+        "command": "execute_script",
+        "environment": "DEV",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_Recovery_Mode_To_Simple_And_Shrink_Log_File.sql"},
+                {"name": "DatabaseForScript", "value": "$[prism_db]"},
+                {"name": "db_to_use", "value": "$[prism_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Set Recovery Mode to simple and shrink the log file for $[staging_db]",
+        "command": "execute_script",
+        "environment": "DEV",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_Recovery_Mode_To_Simple_And_Shrink_Log_File.sql"},
+                {"name": "DatabaseForScript", "value": "$[staging_db]"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Set Recovery Mode to simple and shrink the log file for $[staging_archive_db]",
+        "command": "execute_script",
+        "environment": "DEV",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_Recovery_Mode_To_Simple_And_Shrink_Log_File.sql"},
+                {"name": "DatabaseForScript", "value": "$[staging_archive_db]"},
+                {"name": "db_to_use", "value": "$[staging_archive_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: PRISM_PROD to Development.sql",
+        "command": "execute_script",
+        "environment": "DEV",
+        "variables": [
+                {"name": "ScriptName", "value": "PRISM_PROD to Development.sql"},
+                {"name": "DatabaseForScript", "value": "$[prism_db]"}
+            ]
+        },
+        {"step": "Verify the DB Environment",
+        "command": "execute_verification_sql",
+        "environment": "DEV",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_to_use", "value": "select Value_String from system_info WHERE item = 'environment'"},
+                {"name": "comparison_return_value", "value": "DEV"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "STRING"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Multi_User.sql [Restore user access to the database - $[PRISM_DB]]",
+        "command": "execute_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Multi_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[prism_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Multi_User.sql [Restore user access to the database - $[STAGING_DB]]",
+        "command": "execute_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Multi_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        }
+    ]
+}

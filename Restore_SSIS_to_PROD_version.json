@@ -1,0 +1,86 @@
+{"steps": [
+        {"step": "Setup the Environment",
+        "command": "set_environment",
+        "environment": "DEV"
+        },
+        {"step": "Setup DEV Variables",
+        "command": "setup_variables",
+        "environment": "DEV",   
+        "variables": [
+                {"name": "prism_db", "value": "PRISM_DEV_B", "pass_to_functions": "TRUE"},
+                {"name": "staging_db", "value": "PRISM_STAGING", "pass_to_functions": "TRUE"},
+                {"name": "email_recipients", "value": "brad.moore@gov.ab.ca;jason.hubbard@gov.ab.ca", "usevariablevalue": "FALSE"},
+                {"name": "servername", "value": "d-psm-dbs001\\devm10a,1404"},
+                {"name": "email_after_every_step_completes", "value": "N"},
+                {"name": "SSIS_Folder", "value": "\\\\protect.ds\\jss\\PRISM_DEV\\DeploymentScripts\\PRISM_SSIS_PROD_Backup"}
+            ]
+        },
+        {"step": "Setup PROD Variables",
+        "command": "setup_variables",
+        "environment": "PROD",   
+        "variables": [
+                {"name": "prism_db", "value": "PRISM_PROD", "pass_to_functions": "TRUE"},
+                {"name": "staging_db", "value": "PRISM_STAGING", "pass_to_functions": "TRUE"},
+                {"name": "email_recipients", "value": "brad.moore@gov.ab.ca;jason.hubbard@gov.ab.ca", "usevariablevalue": "FALSE"},
+                {"name": "servername", "value": "p-psm-dbs001\\prdm10a,1408"},
+                {"name": "email_after_every_step_completes", "value": "N"},
+                {"name": "SSIS_Folder", "value": "\\\\protect.ds\\jss\\PRISM_PROD\\DeploymentScripts\\PRISM_SSIS_PROD_BACKUP"}
+            ]
+        },
+        {"step": "Pause before running the scripts.",
+        "command": "pause_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "pause_text", "value": "Please confirm that the databases the script is set up for are correct.", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Load Prod backups of SSIS packages - Incomplete_Files_Report",
+        "command": "load_ssis_packages",
+        "environment": "ALL",
+        "variables": [
+                {"name": "manifest_file", "value": "$[SSIS_Folder]\\Incomplete_Files_Report.SSISDeploymentManifest", "usevariablevalue": "FALSE"},
+                {"name": "load_to_folder", "value": "Incomplete_Files_Report", "usevariablevalue": "FALSE"}
+            ]
+        },
+        {"step": "Load Prod backups of SSIS packages - JOIN_Interface_Reports",
+        "command": "load_ssis_packages",
+        "environment": "ALL",
+        "variables": [
+                {"name": "manifest_file", "value": "$[SSIS_Folder]\\JOIN_Interface_Reports.SSISDeploymentManifest", "usevariablevalue": "FALSE"},
+                {"name": "load_to_folder", "value": "JOIN_Interface_Reports", "usevariablevalue": "FALSE"}
+            ]
+        },
+        {"step": "Load Prod backups of SSIS packages - JOIN_to_PRISM_Charges",
+        "command": "load_ssis_packages",
+        "environment": "ALL",
+        "variables": [
+                {"name": "manifest_file", "value": "$[SSIS_Folder]\\JOIN_to_PRISM_Charges.SSISDeploymentManifest", "usevariablevalue": "FALSE"},
+                {"name": "load_to_folder", "value": "JOIN_to_PRISM_Charges", "usevariablevalue": "FALSE"}
+            ]
+        },
+        {"step": "Load Prod backups of SSIS packages - JOIN_to_PRISM_File_Load",
+        "command": "load_ssis_packages",
+        "environment": "ALL",
+        "variables": [
+                {"name": "manifest_file", "value": "$[SSIS_Folder]\\JOIN_to_PRISM_File_Load.SSISDeploymentManifest", "usevariablevalue": "FALSE"},
+                {"name": "load_to_folder", "value": "JOIN_to_PRISM_File_Load", "usevariablevalue": "FALSE"}
+            ]
+        },
+        {"step": "Load Prod backups of SSIS packages - JOIN_to_PRISM_Officer_Load",
+        "command": "load_ssis_packages",
+        "environment": "ALL",
+        "variables": [
+                {"name": "manifest_file", "value": "$[SSIS_Folder]\\JOIN_to_PRISM_Officer_Load.SSISDeploymentManifest", "usevariablevalue": "FALSE"},
+                {"name": "load_to_folder", "value": "JOIN_to_PRISM_Officer_Load", "usevariablevalue": "FALSE"}
+            ]
+        },
+        {"step": "Load Prod backups of SSIS packages - PRISM_to_JOIN_Interface",
+        "command": "load_ssis_packages",
+        "environment": "ALL",
+        "variables": [
+                {"name": "manifest_file", "value": "$[SSIS_Folder]\\PRISM_to_JOIN_Interface.SSISDeploymentManifest", "usevariablevalue": "FALSE"},
+                {"name": "load_to_folder", "value": "PRISM_to_JOIN_Interface", "usevariablevalue": "FALSE"}
+            ]
+        }
+    ]
+}

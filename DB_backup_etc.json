@@ -1,0 +1,271 @@
+{"steps": [
+        {"step": "Setup ALL Variables",
+        "command": "setup_variables",
+        "environment": "ALL",   
+        "variables": [
+		{"name": "prism_db_backup_folder", "value": "$[prism_db]\\FULL"},
+		{"name": "staging_db_backup_folder", "value": "PRISM_STAGING\\FULL"}
+            ]
+        },
+        {"step": "Setup DEV Variables",
+        "command": "setup_variables",
+        "environment": "DEV",   
+        "variables": [
+		{"name": "backup_folder", "value": "\\\\10.190.18.195\\SQLBackups\\D-PSM-DBS001$DEVM10A\\"}
+            ]
+        },
+        {"step": "Setup UAT Variables",
+        "command": "setup_variables",
+        "environment": "UAT",   
+        "variables": [
+		{"name": "backup_folder", "value": "\\\\10.190.17.195\\SQLBackups\\U-PSM-DBS001$UATM10A\\"}
+            ]
+        },
+        {"step": "Setup TRN Variables",
+        "command": "setup_variables",
+        "environment": "TRN",   
+        "variables": [
+		{"name": "backup_folder", "value": "\\\\10.190.17.195\\SQLBackups\\U-PSM-DBS001$UATM10A\\"},
+		{"name": "staging_db_backup_folder", "value": "", "override": "TRUE"}
+            ]
+        },
+        {"step": "Setup PROD Variables",
+        "command": "setup_variables",
+        "environment": "PROD",  
+        "variables": [
+		{"name": "backup_folder", "value": "\\\\10.190.18.195\\SQLBackups\\P-PSM-DBS001$PRDM10A\\"}
+            ]
+        },
+        {"step": "Verify the DB Environment",
+        "command": "execute_verification_sql",
+        "environment": "DEV",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_to_use", "value": "select Value_String from system_info WHERE item = 'environment'"},
+                {"name": "comparison_return_value", "value": "DEV"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "STRING"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify the DB Environment",
+        "command": "execute_verification_sql",
+        "environment": "UAT",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_to_use", "value": "select Value_String from system_info WHERE item = 'environment'"},
+                {"name": "comparison_return_value", "value": "UAT"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "STRING"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify the DB Environment",
+        "command": "execute_verification_sql",
+        "environment": "TRN",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_to_use", "value": "select Value_String from system_info WHERE item = 'environment'"},
+                {"name": "comparison_return_value", "value": "TRN"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "STRING"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify the DB Environment",
+        "command": "execute_verification_sql",
+        "environment": "PROD",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_to_use", "value": "select Value_String from system_info WHERE item = 'environment'"},
+                {"name": "comparison_return_value", "value": "PROD"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "STRING"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[PRISM_DB]]",
+        "command": "execute_script",
+        "environment": "ALL",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[prism_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[STAGING_DB]]",
+        "command": "execute_script",
+        "environment": "DEV",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[STAGING_DB]]",
+        "command": "execute_script",
+        "environment": "UAT",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[STAGING_DB]]",
+        "command": "execute_script",
+        "environment": "PROD",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Verify nobody is connected to $[PRISM_DB]",
+        "command": "execute_verification_sql",
+        "environment": "ALL",
+        "variables": [
+                {"name": "db_to_use", "value": "$[prism_db]"},
+                {"name": "sql_script_to_use", "value": "Verify_No_Users_Connected_To_DB.sql"},
+                {"name": "comparison_return_value", "value": "0"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "INT"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify nobody is connected to $[STAGING_DB]",
+        "command": "execute_verification_sql",
+        "environment": "DEV",
+        "variables": [
+                {"name": "db_to_use", "value": "$[staging_db]"},
+                {"name": "sql_script_to_use", "value": "Verify_No_Users_Connected_To_DB.sql"},
+                {"name": "comparison_return_value", "value": "0"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "INT"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify nobody is connected to $[STAGING_DB]",
+        "command": "execute_verification_sql",
+        "environment": "UAT",
+        "variables": [
+                {"name": "db_to_use", "value": "$[staging_db]"},
+                {"name": "sql_script_to_use", "value": "Verify_No_Users_Connected_To_DB.sql"},
+                {"name": "comparison_return_value", "value": "0"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "INT"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "Verify nobody is connected to $[STAGING_DB]",
+        "command": "execute_verification_sql",
+        "environment": "PROD",
+        "variables": [
+                {"name": "db_to_use", "value": "$[staging_db]"},
+                {"name": "sql_script_to_use", "value": "Verify_No_Users_Connected_To_DB.sql"},
+                {"name": "comparison_return_value", "value": "0"},
+                {"name": "comparison_operator", "value": "="},
+                {"name": "data_type", "value": "INT"},
+                {"name": "stop_if_not_matching", "value": "M"}
+            ]
+        },
+        {"step": "RESTORE $[PRISM_DB] - DEV ONLY",
+        "command": "restore_database",
+        "environment": "DEV_BAK",
+        "variables": [
+                {"name": "db_to_restore", "value": "$[prism_db]"},
+                {"name": "file_to_restore_from", "value": "H:\\PRISM\\PRISM_DEV_B_2015_03_19_backup_for_RFC13984_testing.bak"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[PRISM_DB] - After Restore - DEV ONLY]",
+        "command": "execute_script",
+        "environment": "DEV_bak",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[prism_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "RESTORE $[STAGING_DB] - DEV ONLY",
+        "command": "restore_database",
+        "environment": "DEV_BAK",
+        "variables": [
+                {"name": "db_to_restore", "value": "$[staging_db]"},
+                {"name": "file_to_restore_from", "value": "H:\\PRISM\\PRISM_STAGING_2015_03_19_backup_for_RFC13984_testing.bak"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "Executing: Set_DB_to_Restricted_User.sql [Kick all users off of the database - $[STAGING_DB] - After Restore - DEV ONLY]",
+        "command": "execute_script",
+        "environment": "DEV_bak",
+        "variables": [
+                {"name": "ScriptName", "value": "Set_DB_to_Restricted_User.sql"},
+                {"name": "DatabaseForScript", "value": "master"},
+                {"name": "db_to_use", "value": "$[staging_db]", "pass_to_functions": "TRUE"}
+            ]
+        },
+        {"step": "Executing: PRISM_PROD to Development.sql",
+        "command": "execute_script",
+        "environment": "DEV",
+        "variables": [
+                {"name": "ScriptName", "value": "PRISM_PROD to Development.sql"},
+                {"name": "DatabaseForScript", "value": "$[prism_db]"}
+            ]
+        },
+        {"step": "BACKUP $[PRISM_DB]",
+        "command": "backup_database",
+        "environment": "DEV_BAK",
+        "variables": [
+                {"name": "db_to_backup", "value": "$[prism_db]"},
+                {"name": "filePrefix", "value": "$[prism_db_backup_folder]\\Migration_"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "BACKUP $[PRISM_DB]",
+        "command": "backup_database",
+        "environment": "UAT",
+        "variables": [
+                {"name": "db_to_backup", "value": "$[prism_db]"},
+                {"name": "filePrefix", "value": "$[prism_db_backup_folder]\\Migration_"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "BACKUP $[PRISM_DB]",
+        "command": "backup_database",
+        "environment": "PROD",
+        "variables": [
+                {"name": "db_to_backup", "value": "$[prism_db]"},
+                {"name": "filePrefix", "value": "$[prism_db_backup_folder]\\Migration_"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "BACKUP $[STAGING_DB]",
+        "command": "backup_database",
+        "environment": "DEV_BAK",       
+        "variables": [
+                {"name": "db_to_backup", "value": "$[staging_db]"},
+                {"name": "filePrefix", "value": "$[staging_db_backup_folder]\\Migration_"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "BACKUP $[STAGING_DB]",
+        "command": "backup_database",
+        "environment": "UAT",       
+        "variables": [
+                {"name": "db_to_backup", "value": "$[staging_db]"},
+                {"name": "filePrefix", "value": "$[staging_db_backup_folder]\\Migration_"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        },
+        {"step": "BACKUP $[STAGING_DB]",
+        "command": "backup_database",
+        "environment": "PROD",       
+        "variables": [
+                {"name": "db_to_backup", "value": "$[staging_db]"},
+                {"name": "filePrefix", "value": "$[staging_db_backup_folder]\\Migration_"},
+                {"name": "email_after_step_completes", "value": "Y"}
+            ]
+        }
+    ]
+}
+
